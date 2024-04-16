@@ -1,9 +1,11 @@
 # obj: fitted model
 # cluster:
 function (obj, cluster, type, target = NULL, inverse_var = FALSE, form = "sandwich", ignore_FE = FALSE) {
+    # TODO: write something better than "drops factor levels from cluster vector"
     cluster <- droplevels(as.factor(cluster))
+    # creates boolean vector on if coefficient in coef vector from obj is null
     alias <- is.na(coef_CS(obj))
-        # THIS IS COEF_CS
+        # THIS IS COEF_CS, all it does is extract coefficient values from obj as a vector
         function (obj) {
                 coef(obj)
             }
