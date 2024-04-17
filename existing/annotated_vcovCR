@@ -7,8 +7,8 @@ function (obj, cluster, type, target = NULL, inverse_var = FALSE, form = "sandwi
     alias <- is.na(coef_CS(obj))
         # THIS IS COEF_CS, all it does is extract coefficient values from obj as a vector
         function (obj) {
-                coef(obj)
-            }
+            coef(obj)
+        }
     X <- model_matrix(obj)
         # THIS IS MODEL_MATRIX
         function (obj) {
@@ -49,15 +49,18 @@ function (obj, cluster, type, target = NULL, inverse_var = FALSE, form = "sandwi
     X_list <- matrix_list(X, cluster, "row")
         # THIS IS MATRIX_LIST
         function (x, fac, dim) {
+            # if single, column, intercept only (?)
             if (is.vector(x)) {
                 # stop condition
                 if (dim != "both")
                     stop(paste0("Object must be a matrix in order to subset by ",
                         dim, "."))
-                # TODO
+                # splitting out clusters from entire design matrix
+                # i.e. separating out the chunks of the design matrix that correspond to clusters
                 x_list <- split(x, fac)
                 lapply(x_list, function(x) diag(x, nrow = length(x)))
             }
+            # if matrix, not just 1 column
             else {
                 # TODO
                 lapply(levels(fac), sub_f(x, fac, dim))
@@ -90,6 +93,7 @@ function (obj, cluster, type, target = NULL, inverse_var = FALSE, form = "sandwi
             }
             # generate vector of length num. clusters filled with weights
             W <- rep(weights, length.out = length(cluster))
+            # previously annotated ("chunking it up")
             W_list <- matrix_list(W, cluster, "both")
             attr(W_list, "w_scale") <- w_scale
             W_list
