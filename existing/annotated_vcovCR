@@ -1,5 +1,8 @@
 # obj: fitted model
-# cluster:
+# cluster: expression or vector for indicating which observations belong to which cluster
+# type: string to change small-sample adjustment type
+# target: variance/covariance model used to calculate CR2 and CR4 matrices
+# boolean indicating whether or not model weights are inverse variance
 function (obj, cluster, type, target = NULL, inverse_var = FALSE, form = "sandwich", ignore_FE = FALSE) {
     # TODO: write something better than "drops factor levels from cluster vector"
     cluster <- droplevels(as.factor(cluster))
@@ -99,20 +102,47 @@ function (obj, cluster, type, target = NULL, inverse_var = FALSE, form = "sandwi
             W_list
         }
 
-
+    # perform matrix multiplication on the chunks of the matrix as previously annotated
     XW_list <- Map(function(x, w) as.matrix(t(x) %*% w), x = X_list, w = W_list)
+
+    # infers variance/covariance model
     if (is.null(target)) {
+        # if model weights are inverse variance, compute cholesky decomposition on W
+        # theta_list is calculated based on W in this case
         if (inverse_var) {
             Theta_list <- lapply(W_list, function(w) chol2inv(chol(w)))
         }
+        # theta_list does not seem to be calculated based on the model object here as it's unused
         else {
             Theta_list <- targetVariance(obj, cluster)
+                # THIS IS TARGETVARIANCE, ACCESS USING `getAnywhere(targetVariance.default)`
+                function (obj, cluster) {
+                    # splits list of 1s (length of list == num. clusters) by cluster?
+                    matrix_list(rep(1, length(cluster)), cluster, "both")
+                }
         }
     }
     else {
+
         if (!is.list(target)) {
             if (length(target) != N) {
                 target <- handle_vectors(target, obj)
+                    # THIS IS HANDLE_VECTORS, ACCESS USING `getAnywhere(handle_vectors)`
+                    function (x, obj) {
+                        # target is reset to indices excluding na.action of model object if
+                        # the model object has it
+                        if (inherits(na.action(obj), "omit")) {
+                            x <- x[-na.action(obj)]
+                        }
+                        # target is set to indices corresponding to positive weights if not null
+                        if (!is.null(wts <- weights(obj))) {
+                            pos_wts <- wts > 0
+                            if (!all(pos_wts))
+                                x <- x[pos_wts]
+                        }
+                        # target returned without modifications otherwise
+                        return(x)
+                    }
             }
             Theta_list <- matrix_list(target, cluster, "both")
         }
