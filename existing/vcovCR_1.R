@@ -7,7 +7,8 @@ ctdata$ftime = factor(ctdata$time)
 ctdata$clustime = interaction(ctdata$fcluster,ctdata$ftime)
 rslt = lmer(ct ~ ftime + treat + (1 | fcluster) + (1 | clustime), data=ctdata)
 diag(vcov(rslt))  # model-based
-diag(rvar0 = vcovCR(rslt, cluster=ctdata$fcluster, type="CR0")) # classic Liang-Zeger
+rvar0 = vcovCR(rslt, cluster=ctdata$fcluster, type="CR0")
+diag(rvar0) # classic Liang-Zeger
 #####################
 # write function to reproduce classic Liang-Zeger result
 #####################
@@ -27,6 +28,11 @@ ginv_eta = predict(rslt,type="response")
 delta = diag(nobs(rslt))
 deltainv = delta # in this case
 theta = as.data.frame(VarCorr(rslt))
+sigma = theta$vcov[theta$grp=="Residual"]
 R = diag(c(rep(theta$vcov[1],ngrps(rslt)["clustime"]),rep(theta$vcov[2],ngrps(rslt)["fcluster"])))
 G = ngrps(rslt)["fcluster"]
+mbv = vcov(rslt)
 
+diag(vcov(rslt))  # model-based
+diag(rvar0) # classic Liang-Zeger
+diag(robustVar) # my code
