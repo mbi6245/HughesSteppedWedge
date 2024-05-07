@@ -1,0 +1,6 @@
+rslt = lmer(ct ~ ftime + treat + (1 | fcluster) + (1 | clustime), data=ctdata)
+rslt0 = glmer(ct ~ ftime + treat + (1 | fcluster), family=binomial, data=ctdata)
+rslt1 = glmer(ct ~ ftime + treat + (1 | fcluster) + (1 | clustime), family=binomial, data=ctdata)
+rslt2 = glmer(ct ~ ftime + treat + (treat | fcluster), family=binomial, data=ctdata)
+rslt3 = glmer(ct ~ ftime + treat + (treat | fcluster) + (1 | clustime), family=binomial, data=ctdata)
+rslt4 = glmer(ct ~ ftime + treat + (1 | fcluster) + (0 + treat | fcluster) + (1 | clustime), family=binomial, data=ctdata)
