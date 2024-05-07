@@ -1,8 +1,4 @@
-# Structure
+# Structure: IMPORTANT!!
 
-IMPORTANT: store files related to understanding existing code (e.g. annotated R files) in the
-directory titled `existing` and files containing code written to analyze the new data in the
-directory titled `analysis`. Currently, there is only 1 annoted R file in the `existing` directory,
-but as can be inferred from above, `analysis` will be useful in the future. `analysis` currently
-only exists on Max's local machine, as git only tracks files, not directories, and `analysis` is
-empty.
+* **store files related to understanding existing code (e.g. annotated R files) in the directory titled `existing`**
+* **store files related to creating novel functions in the directory titled `analysis`**
